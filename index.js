@@ -1,17 +1,15 @@
 class Hotel{
     adresa;
-    maxBrojSoba = 50;
+    #maxBrojSoba = 50;
     sobe = [];
     rezervisaneSobe = [];
-    tipSobe = ['jednokrevetna', 'dvokrevetna', 'apartman'];
-    uslugeHotela = [
+    static uslugeHotela = [
         {usluga: 'Kino', cijena: 10},
         {usluga: 'Teretena', cijena: 10},
         {usluga: 'Sauna', cijena: 10},
         {usluga: 'Restoran', cijnea: 10},
         {usluga: 'Bazen', cijena: 10}
     ];
-    prijavljeniKorisnici = [];
 
     constructor(adresa) {
         this.adresa = adresa;
@@ -19,7 +17,7 @@ class Hotel{
     }
 
     generisiSobe(){
-        for(let i = 1; i <= this.maxBrojSoba; i++){
+        for(let i = 1; i <= this.#maxBrojSoba; i++){
             if(i <= 20)
                 this.sobe.push({brojSobe: i, tipSobe: 'jednokrevetna', cijena: 20});
             else if(i > 20 && i <= 40)
@@ -54,6 +52,26 @@ class Hotel{
 
 };
 
+//klasa sadrzi samo korisnike koji su prijavljeni u hotelu
+class Prijave{
+    static prijavljeniKorisnici = [];
+
+    provjeriPrijavljeneKorisnike(){
+        //vraca ispis svih prijavljenih korisnika
+    }
+
+};
+
+//kada se korisnik prijavi u hotel, dobije sobu, pravi se instanca ove klase za lakse upravljanje i racunanje cijena usluga
+class Rezervacija{
+    soba;
+    usluge = [];
+    
+    static prikaziRezervaciju(){
+        //metoda vraca informacije o rezervaciji korisnika
+    }
+};
+
 
 class Korisnik {
     ime;
@@ -79,23 +97,23 @@ class Korisnik {
     }
 
     provjeriRacun(){
-
+        //provjerava ukupan racun za dosadasnje usluge koje je korisnik imao
     }
 
     rezervisiUslugu(){
-
+        //salje zahtjev adminu da zeli rezervisati uslugu
     }
 
     zatraziPromjenuSobe(){
-
+        //salje zahtjev adminu da zeli promjenu sobe
     }
 
     odjaviSeIzHotela(){
-
+        //salje zahtjev adminu da se odjavi iz hotela
     }
 
     platiRacun(){
-
+        //prije nego sto korisnik bude odjavljen iz hotela, obavezno mora platiti racun za koristene usluge
     }
 };
 
@@ -111,48 +129,47 @@ class Admin{
         }
     }
 
-    prijaviKorisnika(){
 
+    prijaviKorisnika(korisnik, tipSobe){
+        //prima objekat korisnik i string tip sobe koju korisnik zeli da rezervise za sebe, koristi funkcije generisiUsername i generisiPassword
+        //dodaje korisnika u niz prijavljeniKorisnici iz klase hotel
     }
 
-    #generisiUsernameKorisniku(){
-
+    #generisiUsernameKorisniku(ime, prezime, godine){
+        return ime.toLowerCase() + '_' + prezime.toLowerCase() + godine + (Math.random() * 10).toFixed(0);
     }
 
-    #generisiPasswordKorisniku(){
-
+    #generisiPasswordKorisniku(ime, prezime, godine){
+        return prezime.toLowerCase() + ime.toLowerCase() + godine;
     }
 
     promijeniInformacijeKorisniku(){
+        //mijenja informacije o korisniku (Promjena sobe i tipa sobe, dodatne usluge koje korisnik koristi)
 
     }
 
-    provjeriPrijavljeneKorisnike(){
-
-    }
-
-    izdajRacunKorisniku(){
-
+    izdajRacunKorisniku(korisnik){
+        //izracuna koliko usluga i sta je imao korisnik te izda ukupni racun, prima objekat korisnika i na osnovu toga racuna ukupno 
     }
 
     odjaviSveKorisnike(){
-
+        //nije mi jasno sta metoda treba da radi//************************************ */
     }
 
-    odjaviKorisnika(){
-
+    odjaviKorisnika(korisnik){
+        //odjavljuje korisnika iz hotela
     }
 
     ugasiSistem(){
-
+        //gasi cijeli sistem a prethodno poziva metode za odjavljivanje svih korisnika, ispisuje poruku dovidjenja i gasi sistem
     }
 
     pretraziPrijavljeneKorisnike(ime, brojLicneKarte, username){
-
+        
     }
 
     odobriOdjavuKorisnika(){
-
+        //nakon sto korisnik posalje zahtjev za odjavu, admin treba da izda racun i nakon sto korisnik plati racun onda da odobri odjavu korisnika iz hotela
     }
 
 };
@@ -165,6 +182,9 @@ admin.prijavaAdmina('admin', 'admin');
 
 /* **************************************************************** */
 const hotel = new Hotel('nekaAdresa');
+
+admin.prijaviKorisnika();
+
 
 hotel.rezervisiSobu('Jednokrevetna');
 hotel.rezervisiSobu('Dvokrevetna');
