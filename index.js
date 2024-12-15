@@ -24,6 +24,7 @@ class Osoba {
 
 class Admin {
     maxBrojKorisnika = 50;
+    gosti = [];
     constructor(ime) {
         
     }
@@ -34,20 +35,51 @@ class Admin {
         return `${ime}${prezime}${godine}`;
     }
 
-    prijavaKorisnika(ime, prezime, spol, broj_licne_karte, god, broj, tip_sobe) {
-        let korisnik = {
-           ime: ime,
-           prezime: prezime,
-           spol: spol,
-           broj_licne: broj_licne_karte,
-           godine: god,
-           broj: broj,
-           tip_sobe: tip_sobe,
+    prijavaKorisnika(korisnik, tipSobe, brojSobe) {
+        let  gost= {
+           ime: korisnik.ime,
+           prezime: korisnik.prezime,
+           spol: korisnik.spol,
+           broj_licne: korisnik.broj_licne_karte,
+           godine: korisnik.godine,
+           broj: korisnik.broj,
+           brojSobe: brojSobe,
+           tipSobe: tipSobe,
            vrijeme_prijave: Date(),
-           korisnickoIme : korisnickoIme(ime, prezime),
-           password: korisnickiPassword(ime, prezime, godine),
+           korisnickoIme : korisnickoIme(korisnik.ime, korisnik.prezime),
+           password: korisnickiPassword(korisnik.ime, korisnik.prezime, korisnik.godine),
            dodatne_usluge : []
         };
+        this.gosti.push(gost)
+
     }
-    promijeni_informacije 
+    promijeniTipSobe (ime,prezime, tipSobe) {
+        let gost = this.gosti.find(gost => gost.ime === ime && gost.prezime === prezime)
+
+       if (gost) {
+        gost.tipSobe = tipSobe;
+       }
+    }
+
+    promijeniBrojSobe (ime,prezime, brojSobe) {
+        let gost = this.gosti.find(gost => gost.ime === ime && gost.prezime === prezime)
+
+       if (gost) {
+        gost.brojSobe = brojSobe;
+       }
+    }
+    promijeniUslugu (ime,prezime, usluga) {
+        let gost = this.gosti.find(gost => gost.ime === ime && gost.prezime === prezime)
+
+       if (gost) {
+        gost.dodatneUsluge.push(usluga);
+       }
+    }
+
+    odjavaKorisnika(gost) {
+        let gost = this.gosti.find(gost => gost.ime === ime && gost.prezime === prezime)
+        if(gost) {
+            this.gosti = this.gosti.filter(e => e != gost)
+        }
+    }
 }
