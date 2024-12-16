@@ -92,15 +92,16 @@ class Rezervacija{
     brojLicneKarteKorisnika;
     brojSobe;
     tipSobe;
+    #cijenaSobe;
     datumRezervacije;
     usluge = [];
-    ukupnaCijena;
+    ukupnaCijena = 0;
 
     constructor(soba, brojLicneKarte){
         this.brojLicneKarteKorisnika = brojLicneKarte;
         this.tipSobe = soba.tipSobe;
         this.brojSobe = soba.brojSobe;
-        this.ukupnaCijena = soba.cijena;
+        this.#cijenaSobe = soba.cijena;
         this.brojRezervacije = Rezervacija.brojRezervacije;
         this.datumRezervacije = this.#generisiVrijeme();
         Rezervacija.brojRezervacije++;
@@ -110,7 +111,7 @@ class Rezervacija{
         //metoda vraca informacije o rezervaciji korisnika
         let rezervacija = Prijave.prijavljeniKorisnici.find((e) => {
             if(e.brojLicneKarteKorisnika === brojLicneKarte){
-                // e.getUkupnaCijena();
+                e.getUkupnaCijena();
                 return e;
             }
             return `Rezervacija korisnika ne postoji!`;
@@ -120,7 +121,8 @@ class Rezervacija{
     }
 
     getUkupnaCijena(){
-        this.ukupnaCijena = this.ukupnaCijena * this.izracunajVrijemeBoravka();
+        this.ukupnaCijena = 0;
+        this.ukupnaCijena = this.#cijenaSobe * this.izracunajVrijemeBoravka();
         this.usluge.forEach((e) => this.ukupnaCijena += e.cijena);
         return this.ukupnaCijena;
     }
@@ -143,7 +145,8 @@ class Rezervacija{
         let pocetak = new Date(pom);
         let kraj = new Date(trenutno);
         
-        ukupnoVrijemeBoravka = (kraj - pocetak) / (1000 * 60 * 60 * 24);
+        if((kraj - pocetak) > 0)
+            ukupnoVrijemeBoravka = (kraj - pocetak) / (1000 * 60 * 60 * 24);
 
         return ukupnoVrijemeBoravka;
     }
@@ -178,8 +181,11 @@ class Korisnik {
         ispisLinija();
         const rez = Rezervacija.prikaziRezervaciju(this.getBrojLicneKarte); //u varijabli rez je instanca rezervacije, mogu se prikazivati svi detalji, cijena, usluge itd
         console.log(`Datum prijave: ${rez.datumRezervacije}`);
-        console.log(`Koristene usluge: `);
-        rez.usluge.forEach((e) => console.log((`\t\t ${e.usluga}`)));
+        console.log(`Tip sobe: ${rez.tipSobe.charAt(0).toUpperCase()}${rez.tipSobe.slice(1)}`);
+        if(rez.usluge.length > 0){
+            console.log(`Koristene usluge: `);
+            rez.usluge.forEach((e) => console.log((`\t\t ${e.usluga}`)));
+        }
         console.log(`Ukupno: ${rez.ukupnaCijena} KM`);
     }
 
@@ -263,9 +269,11 @@ class Admin{
         if(!racun) {console.log(`Rezervacija ne postoji u sistemu`); return;}
 
         console.log(`Tip sobe: ${racun.tipSobe.charAt(0).toUpperCase()}${racun.tipSobe.slice(1)}`);
-        console.log("Usluge: ");
-        racun.usluge.forEach((e) => console.log(`\t${e.usluga}`)); //usluge su niz objekata
-        console.log(`Ukupno: ${racun.ukupnaCijena}`); //u objektu rezervacija vec postoji izracunata cijena svega sto je korisnik koristio
+        if(racun.usluge.length > 0){
+            console.log("Usluge: ");
+            racun.usluge.forEach((e) => console.log(`\t${e.usluga}`)); //usluge su niz objekata
+        }
+        console.log(`Ukupno: ${racun.ukupnaCijena} KM`); //u objektu rezervacija vec postoji izracunata cijena svega sto je korisnik koristio
 
     }
 
