@@ -1,5 +1,4 @@
 class Admin {
-    maxBrojKorisnika = 50;
     gosti = [];
     logovaniGosti = [];
     id;
@@ -38,6 +37,9 @@ class Admin {
         if(logovan) {
             this.logovaniGosti.push(logovan);
         }
+        else {
+            console.log('Gost nije u hotelu!')
+        }
     }
     promijeniTipSobe (ime,prezime, tipSobe) {
         let gost = this.gosti.find(gost => gost.ime === ime && gost.prezime === prezime)
@@ -45,6 +47,9 @@ class Admin {
        if (gost) {
         gost.tipSobe = tipSobe;
        }
+       else {
+        console.log('Gost nije u hotelu!')
+    }
     }
 
     promijeniBrojSobe (ime,prezime, brojSobe) {
@@ -53,6 +58,9 @@ class Admin {
        if (gost) {
         gost.brojSobe = brojSobe;
        }
+       else {
+        console.log('Gost nije u hotelu!')
+    }
     }
     dodajUslugu (ime,prezime, usluga) {
         let gost = this.gosti.find(gost => gost.ime === ime && gost.prezime === prezime)
@@ -60,6 +68,9 @@ class Admin {
        if (gost) {
         gost.dodatneUsluge.push(usluga);
        }
+       else {
+        console.log('Gost nije u hotelu!')
+    }
     }
 
     izbrisiUslugu(ime,prezime,usluga) {
@@ -67,6 +78,9 @@ class Admin {
         let imaUslugu = gost.dodatneUsluge.indexOf(usluga);
         if(gost && imaUslugu >= 0) {
             gost.dodatneUsluge.splice(imaUslugu, 1)
+        }
+        else {
+            console.log('Gost nije u hotelu ili nema tu uslugu!')
         }
     }
 
@@ -82,7 +96,7 @@ class Admin {
     }
     
     izlogujSveKorisnike() {
-        this.logovaniGosti.length = 0;
+        this.logovaniGosti = [];
     }
     
     izlogujKorisnika(gost) {
