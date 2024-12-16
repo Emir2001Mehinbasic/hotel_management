@@ -109,13 +109,12 @@ class Rezervacija{
     
     static prikaziRezervaciju(brojLicneKarte){
         //metoda vraca informacije o rezervaciji korisnika
-        let rezervacija = Prijave.prijavljeniKorisnici.find((e) => {
-            if(e.brojLicneKarteKorisnika === brojLicneKarte){
-                e.getUkupnaCijena();
-                return e;
-            }
-            return `Rezervacija korisnika ne postoji!`;
-        });
+        let rezervacija = Prijave.prijavljeniKorisnici.find((e) => e.brojLicneKarteKorisnika === brojLicneKarte);
+
+        if(!rezervacija)
+            return false;
+        
+        rezervacija.getUkupnaCijena();
 
         return rezervacija;
     }
@@ -180,6 +179,7 @@ class Korisnik {
         //provjerava ukupan racun za dosadasnje usluge koje je korisnik imao
         ispisLinija();
         const rez = Rezervacija.prikaziRezervaciju(this.getBrojLicneKarte); //u varijabli rez je instanca rezervacije, mogu se prikazivati svi detalji, cijena, usluge itd
+        if(!rez){console.log(`Rezervacija ne postoji u sistemu!`); return;}
         console.log(`Datum prijave: ${rez.datumRezervacije}`);
         console.log(`Tip sobe: ${rez.tipSobe.charAt(0).toUpperCase()}${rez.tipSobe.slice(1)}`);
         if(rez.usluge.length > 0){
@@ -233,15 +233,18 @@ class Admin{
     }
 
 
+    //POTREBNO DODATI DA NE MOZE ISTI KORISNIK IMATI VISE SOBA, ako korisnik zatrazi sobu koja trenutno nije slobodna ne smije ga upisati
     prijaviKorisnika(korisnik, tipSobe){
+        ispisLinija();
         if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
         //prima objekat korisnik i string tip sobe koju korisnik zeli da rezervise za sebe, koristi funkcije generisiUsername i generisiPassword
         //dodaje korisnika u niz prijavljeniKorisnici iz klase hotel
         if(typeof korisnik != "object") return;
         let soba = Hotel.rezervisiSobu(tipSobe);
-        if(!soba) return;
+        if(!soba) { console.log('Nema slobodnih soba sa tim specifikacijama'); return; }
 
         Prijave.upisiKorisnika(new Rezervacija(soba, korisnik.getBrojLicneKarte));
+        console.log(`Kreirana je nova rezervacija na ime ${korisnik.ime} ${korisnik.prezime}.\nBroj sobe: ${soba.brojSobe}\nTip sobe: ${soba.tipSobe.charAt(0).toUpperCase()}${soba.tipSobe.slice(1)}`);
 
     }
 
@@ -265,7 +268,6 @@ class Admin{
 
         //izracuna koliko usluga i sta je imao korisnik te izda ukupni racun, prima objekat korisnika i na osnovu toga racuna ukupno
         let racun = Rezervacija.prikaziRezervaciju(korisnik.getBrojLicneKarte); // racun je objekat u ovom slucaju jer funkcija vraca objekat
-
         if(!racun) {console.log(`Rezervacija ne postoji u sistemu`); return;}
 
         console.log(`Tip sobe: ${racun.tipSobe.charAt(0).toUpperCase()}${racun.tipSobe.slice(1)}`);
@@ -314,10 +316,15 @@ admin.prijavaAdmina('admin', 'admin');
 admin.prijaviKorisnika();
 
 const korisnik1 = new Korisnik('Ane', 'Kane', 'M', '145262AK', 21);
+const korisnik2 = new Korisnik('Munib', 'Osmic', 'M', '1525235A', 22);
+const korisnik3 = new Korisnik('Ajla', 'Hadzic', 'F', '15fs21435', 27);
 
 admin.prijaviKorisnika(korisnik1, 'jednokrevetna');
+admin.prijaviKorisnika(korisnik2, 'apartman');
+
+admin.prijaviKorisnika(korisnik3, 'jednokrevetna');
 
 // console.log(Prijave.prijavljeniKorisnici);
 
-korisnik1.provjeriRacun();
-admin.izdajRacunKorisniku(korisnik1);
+// korisnik1.provjeriRacun();
+admin.izdajRacunKorisniku(korisnik2);
