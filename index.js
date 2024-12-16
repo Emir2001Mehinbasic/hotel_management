@@ -65,6 +65,14 @@ class Hotel{
 
 };
 
+class Sistem{
+    static logedUsers = [];
+
+    static dodajLogIn(korisnik){
+        this.logedUsers.push(korisnik);
+    }
+}
+
 //klasa sadrzi samo korisnike koji su prijavljeni u hotelu
 class Prijave{
     static prijavljeniKorisnici = [];
@@ -90,6 +98,7 @@ class Rezervacija{
     static brojRezervacije = 1;
     brojRezervacije;
     brojLicneKarteKorisnika;
+    username;
     brojSobe;
     tipSobe;
     #cijenaSobe;
@@ -97,8 +106,9 @@ class Rezervacija{
     usluge = [];
     ukupnaCijena = 0;
 
-    constructor(soba, brojLicneKarte){
-        this.brojLicneKarteKorisnika = brojLicneKarte;
+    constructor(soba, korisnik){
+        this.brojLicneKarteKorisnika = korisnik.getBrojLicneKarte;
+        this.username = korisnik.username;
         this.tipSobe = soba.tipSobe;
         this.brojSobe = soba.brojSobe;
         this.#cijenaSobe = soba.cijena;
@@ -243,7 +253,9 @@ class Admin{
         let soba = Hotel.rezervisiSobu(tipSobe);
         if(!soba) { console.log('Nema slobodnih soba sa tim specifikacijama'); return; }
 
-        Prijave.upisiKorisnika(new Rezervacija(soba, korisnik.getBrojLicneKarte));
+        korisnik.username = this.#generisiUsernameKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
+        korisnik.password = this.#generisiPasswordKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
+        Prijave.upisiKorisnika(new Rezervacija(soba, korisnik));
         console.log(`Kreirana je nova rezervacija na ime ${korisnik.ime} ${korisnik.prezime}.\nBroj sobe: ${soba.brojSobe}\nTip sobe: ${soba.tipSobe.charAt(0).toUpperCase()}${soba.tipSobe.slice(1)}`);
 
     }
@@ -313,7 +325,6 @@ const admin = new Admin();
 admin.prijavaAdmina('admin', 'admin');
 
 /* **************************************************************** */
-admin.prijaviKorisnika();
 
 const korisnik1 = new Korisnik('Ane', 'Kane', 'M', '145262AK', 21);
 const korisnik2 = new Korisnik('Munib', 'Osmic', 'M', '1525235A', 22);
@@ -328,3 +339,4 @@ admin.prijaviKorisnika(korisnik3, 'jednokrevetna');
 
 // korisnik1.provjeriRacun();
 admin.izdajRacunKorisniku(korisnik2);
+console.log(Prijave.prijavljeniKorisnici);
