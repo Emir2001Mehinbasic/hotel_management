@@ -50,15 +50,15 @@ class Hotel {
     return false;
   }
 
-  static oslobodiSobu(soba) {
+  static oslobodiSobu(brojSobe) {
     let rezervisana = Hotel.rezervisaneSobe.find(
-      (e) => e.brojSobe === soba.brojSobe
+      (e) => e.brojSobe === brojSobe
     );
     if (rezervisana) {
       Hotel.rezervisaneSobe = Hotel.rezervisaneSobe.filter(
-        (e) => e.brojSobe != soba.brojSobe
+        (e) => e.brojSobe != brojSobe
       );
-      Hotel.sobe.push(soba);
+      Hotel.sobe.push(rezervisana);
       Hotel.sobe.sort((a, b) => a.brojSobe - b.brojSobe);
       return true;
     }
@@ -117,12 +117,10 @@ class Rezervacija {
     this.brojSobe = soba.brojSobe;
     this.#cijenaSobe = soba.cijena;
     this.brojRezervacije = Rezervacija.brojRezervacije;
-    this.datumRezervacije = this.#generisiVrijeme();
+    this.datumRezervacije = this.generisiVrijeme();
     Rezervacija.brojRezervacije++;
   }
-  generisiVrijemeVol2(){
-    return this.#generisiVrijeme()
-  }
+
   static racunZaplatiti(brojLicneKarte) {
     // Dohvatiti rezervaciju na osnovu broja lične karte
     let rezervacija = Prijave.prijavljeniKorisnici.find(
@@ -157,7 +155,7 @@ class Rezervacija {
     return this.ukupnaCijena;
   }
 
-  #generisiVrijeme() {
+  generisiVrijeme() {
     let dan = new Date();
     return (
       dan.getDate() + "." + Number(dan.getMonth() + 1) + "." + dan.getFullYear()
@@ -165,7 +163,7 @@ class Rezervacija {
   }
 
   izracunajVrijemeBoravka() {
-    let trenutno = this.#generisiVrijeme();
+    let trenutno = this.generisiVrijeme();
     trenutno = trenutno.split(".").reverse().join(".");
 
     let ukupnoVrijemeBoravka = 1;
@@ -270,7 +268,7 @@ class Korisnik {
     }
 
     //oslobodjaje trenutnu sobu
-    if (Hotel.oslobodiSobu(trenutnaRezervacija)) {
+    if (Hotel.oslobodiSobu(trenutnaRezervacija.brojSobe)) {
       console.log("Trenutna soba je uspješno oslobođena.");
 
       //zatrazi novu sobu
@@ -284,7 +282,7 @@ class Korisnik {
         trenutnaRezervacija.brojSobe = novaSoba.brojSobe;
         trenutnaRezervacija.tipSobe = novaSoba.tipSobe;
         trenutnaRezervacija.datumRezervacije =
-        trenutnaRezervacija.generisiVrijemeVol2();
+        trenutnaRezervacija.generisiVrijeme();
         console.log(
           `Korisnik je uspješno premješten u sobu broj ${novaSoba.brojSobe} (${novaSoba.tipSobe}).`
         );
