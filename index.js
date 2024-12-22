@@ -335,162 +335,132 @@ class Korisnik {
   }
 }
 
-class Admin {
-  username = "admin";
-  password = "admin";
+class Admin{
+  username = 'admin';
+  password = 'admin';
   isLoggedIn = false;
 
   //metoda simulira potrebu da se admin prijavi kako bi sistem funkcionisao
-  prijavaAdmina(username, password) {
-    if (username !== this.username && password !== this.password) {
-      console.log(`Uneseni su pogresni podaci za prijavu!`);
-      process.exit();
-    }
+  prijavaAdmina(username, password){
+      if(username !== this.username && password !== this.password){
+         console.log(`Uneseni su pogresni podaci za prijavu!`);
+         process.exit();
+      }
 
-    if (Hotel.sobe.length === 0) Hotel.generisiSobe();
+      if(Hotel.sobe.length === 0)
+          Hotel.generisiSobe();
 
-    this.isLoggedIn = true;
+      this.isLoggedIn = true;
 
-    ispisLinija();
-    console.log(`\t\tUspjesno ste prijavljeni u sistem kao ADMIN`);
+      ispisLinija();
+      console.log(`\t\tUspjesno ste prijavljeni u sistem kao ADMIN`);
   }
 
-  odjavaAdmina() {
-    this.isLoggedIn = false;
-    console.log("Dovidjenja!");
+  odjavaAdmina(){
+      this.isLoggedIn = false;
+      console.log("Dovidjenja!");
   }
 
   //POTREBNO DODATI DA NE MOZE ISTI KORISNIK IMATI VISE SOBA, ako korisnik zatrazi sobu koja trenutno nije slobodna ne smije ga upisati
-  prijaviKorisnika(korisnik, tipSobe) {
-    ispisLinija();
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
-    //prima objekat korisnik i string tip sobe koju korisnik zeli da rezervise za sebe, koristi funkcije generisiUsername i generisiPassword
-    //dodaje korisnika u niz prijavljeniKorisnici iz klase hotel
-    if (typeof korisnik != "object") return;
-    let soba = Hotel.rezervisiSobu(tipSobe);
-    if (!soba) {
-      console.log("Nema slobodnih soba sa tim specifikacijama");
-      return;
-    }
+  prijaviKorisnika(korisnik, tipSobe){
+      ispisLinija();
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
+      //prima objekat korisnik i string tip sobe koju korisnik zeli da rezervise za sebe, koristi funkcije generisiUsername i generisiPassword
+      //dodaje korisnika u niz prijavljeniKorisnici iz klase hotel
+      if(typeof korisnik != "object") return;
+      let soba = Hotel.rezervisiSobu(tipSobe);
+      if(!soba) { console.log('Nema slobodnih soba sa tim specifikacijama'); return; }
 
-    Prijave.upisiKorisnika(new Rezervacija(soba, korisnik.getBrojLicneKarte));
-    console.log(
-      `Kreirana je nova rezervacija na ime ${korisnik.ime} ${
-        korisnik.prezime
-      }.\nBroj sobe: ${soba.brojSobe}\nTip sobe: ${soba.tipSobe
-        .charAt(0)
-        .toUpperCase()}${soba.tipSobe.slice(1)}`
-    );
+      korisnik.username = this.#generisiUsernameKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
+      korisnik.password = this.#generisiPasswordKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
+      Prijave.upisiKorisnika(new Rezervacija(soba, korisnik));
+      console.log(`Kreirana je nova rezervacija na ime ${korisnik.ime} ${korisnik.prezime}.\nBroj sobe: ${soba.brojSobe}\nTip sobe: ${soba.tipSobe.charAt(0).toUpperCase()}${soba.tipSobe.slice(1)}`);
+
   }
 
-  #generisiUsernameKorisniku(ime, prezime, godine) {
-    return (
-      ime.toLowerCase() +
-      "_" +
-      prezime.toLowerCase() +
-      godine +
-      (Math.random() * 10).toFixed(0)
-    );
+  #generisiUsernameKorisniku(ime, prezime, godine){
+      return ime.toLowerCase() + '_' + prezime.toLowerCase() + godine + (Math.random() * 10).toFixed(0);
   }
 
-  #generisiPasswordKorisniku(ime, prezime, godine) {
-    return prezime.toLowerCase() + ime.toLowerCase() + godine;
+  #generisiPasswordKorisniku(ime, prezime, godine){
+      return prezime.toLowerCase() + ime.toLowerCase() + godine;
   }
 
-  promijeniInformacijeKorisniku() {
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
-    //mijenja informacije o korisniku (Promjena sobe i tipa sobe, dodatne usluge koje korisnik koristi)
+  promijeniInformacijeKorisniku(korisnik, tipSobe){
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
+      let rezervacija = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+     if(!(tipSobe.toLowerCase() == 'jednokrevetna' || tipSobe.toLowerCase() === 'dvokrevetna' || tipSobe.toLowerCase() == 'apartman')) {
+      return false;
+     }
+     let novaSoba =Hotel.rezervisiSobu(tipSobe)
+     if (novaSoba) {
+      rezervacija.tipSobe = novaSoba.tipSobe;
+      rezervacija.brojSobe = novaSoba.brojSobe;
+      console.log('Soba je uspijesno promijenjena!');     
+     }
+     else {
+      console.log('Soba nije promijenjena!');
+      
+     }
+
   }
 
-  izdajRacunKorisniku(korisnik) {
-    ispisLinija();
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
+  izdajRacunKorisniku(korisnik){
+      ispisLinija();
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
 
-    //izracuna koliko usluga i sta je imao korisnik te izda ukupni racun, prima objekat korisnika i na osnovu toga racuna ukupno
-    let racun = Rezervacija.prikaziRezervaciju(korisnik.getBrojLicneKarte); // racun je objekat u ovom slucaju jer funkcija vraca objekat
-    if (!racun) {
-      console.log(`Rezervacija ne postoji u sistemu`);
-      return;
-    }
+      //izracuna koliko usluga i sta je imao korisnik te izda ukupni racun, prima objekat korisnika i na osnovu toga racuna ukupno
+      let racun = Rezervacija.prikaziRezervaciju(korisnik.getBrojLicneKarte); // racun je objekat u ovom slucaju jer funkcija vraca objekat
+      if(!racun) {console.log(`Rezervacija ne postoji u sistemu`); return;}
 
-    console.log(
-      `Tip sobe: ${racun.tipSobe.charAt(0).toUpperCase()}${racun.tipSobe.slice(
-        1
-      )}`
-    );
-    if (racun.usluge.length > 0) {
-      console.log("Usluge: ");
-      racun.usluge.forEach((e) => console.log(`\t${e.usluga}`)); //usluge su niz objekata
-    }
-    console.log(`Ukupno: ${racun.ukupnaCijena} KM`); //u objektu rezervacija vec postoji izracunata cijena svega sto je korisnik koristio
+      console.log(`Tip sobe: ${racun.tipSobe.charAt(0).toUpperCase()}${racun.tipSobe.slice(1)}`);
+      if(racun.usluge.length > 0){
+          console.log("Usluge: ");
+          racun.usluge.forEach((e) => console.log(`\t${e.usluga}`)); //usluge su niz objekata
+      }
+      console.log(`Ukupno: ${racun.ukupnaCijena} KM`); //u objektu rezervacija vec postoji izracunata cijena svega sto je korisnik koristio
+
   }
 
-  odjaviSveKorisnike() {
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
-    //nije mi jasno sta metoda treba da radi//************************************ */
+  odjaviSveKorisnikeIzSistema(){
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
+      Sistem.logedUsers = [];
   }
 
-  odjaviKorisnika(korisnik) {
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
-    //odjavljuje korisnika iz hotela, obavezno pozvati static metodu iz klase prijave kako bi se izbrisao korisnik i baze prijavljenih
+  odjaviKorisnika(korisnik){
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
+      let user = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+      if(user) {
+          Prijave.odjaviKorisnika(user);
+      }
+      else console.log('Koriniski nije u hotelu!')
   }
 
-  ugasiSistem() {
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
-    //gasi cijeli sistem a prethodno poziva metode za odjavljivanje svih korisnika, ispisuje poruku dovidjenja i gasi sistem
+  ugasiSistem(){
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
+      this.odjaviSveKorisnike()
   }
 
-
-
-    //POTREBNO DODATI DA NE MOZE ISTI KORISNIK IMATI VISE SOBA, ako korisnik zatrazi sobu koja trenutno nije slobodna ne smije ga upisati
-    prijaviKorisnika(korisnik, tipSobe){
-        ispisLinija();
-        if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
-        //prima objekat korisnik i string tip sobe koju korisnik zeli da rezervise za sebe, koristi funkcije generisiUsername i generisiPassword
-        //dodaje korisnika u niz prijavljeniKorisnici iz klase hotel
-        if(typeof korisnik != "object") return;
-        let soba = Hotel.rezervisiSobu(tipSobe);
-        if(!soba) { console.log('Nema slobodnih soba sa tim specifikacijama'); return; }
-
-        korisnik.username = this.#generisiUsernameKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
-        korisnik.password = this.#generisiPasswordKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
-        Prijave.upisiKorisnika(new Rezervacija(soba, korisnik));
-        console.log(`Kreirana je nova rezervacija na ime ${korisnik.ime} ${korisnik.prezime}.\nBroj sobe: ${soba.brojSobe}\nTip sobe: ${soba.tipSobe.charAt(0).toUpperCase()}${soba.tipSobe.slice(1)}`);}
-
-  pretraziPrijavljeneKorisnike(ime, brojLicneKarte, username) {
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-
-    }
+  pretraziPrijavljeneKorisnike(brojLicneKarte, username){
+      if(!this.isLoggedIn){console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);return;};
+      let korisnik = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+      console.log(korisnik); //ev zavrsio sam
+      
   }
 
-  odobriOdjavuKorisnika() {
-    if (!this.isLoggedIn) {
-      console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
-      return;
-    }
-    //nakon sto korisnik posalje zahtjev za odjavu, admin treba da izda racun i nakon sto korisnik plati racun onda da odobri odjavu korisnika iz hotela
+  odobriOdjavuKorisnika(brojLicneKarte, username){
+      if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return;}
+
+      if(platioRacun) {
+      let korisnik = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+      Prijave.prijavljeniKorisnici.filter(e => e != korisnik);
+      }
+
+      //nakon sto korisnik posalje zahtjev za odjavu, admin treba da izda racun i nakon sto korisnik plati racun onda da odobri odjavu korisnika iz hotela
   }
-}
+
+};
+
 
 //kreiranje objekta admin, i pozivanje metode za prijavu
 //ako su uneseni pogresni podaci onda se prekida izvrsavanje cijele skripte
