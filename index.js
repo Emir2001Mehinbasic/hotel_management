@@ -128,7 +128,7 @@ class Rezervacija {
     let rezervacija = Prijave.prijavljeniKorisnici.find(
       (e) => e.brojLicneKarteKorisnika === brojLicneKarte
     );
- feature1
+
 
     // Ako rezervacija ne postoji, vratiti false
     if (!rezervacija) return false;
@@ -231,7 +231,7 @@ class Korisnik {
     Hotel.uslugeHotela.forEach((usluga, index) => {
       console.log(`${index + 1}. ${usluga.usluga} - ${usluga.cijena} KM`);
     });
-
+   const prompt = require("prompt-sync")();
     //unos korisnikovog izbora
     let izbor = prompt("Unesite broj usluge koju želite rezervisati: ");
     izbor = parseInt(izbor);
@@ -518,3 +518,5 @@ console.log(Prijave.prijavljeniKorisnici);
 
 //
 korisnik1.platiRacun();
+// korisnik1.rezervisiUslugu();
+korisnik1.zatraziPromjenuSobe();
