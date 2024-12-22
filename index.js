@@ -117,12 +117,10 @@ class Rezervacija {
     this.brojSobe = soba.brojSobe;
     this.#cijenaSobe = soba.cijena;
     this.brojRezervacije = Rezervacija.brojRezervacije;
-    this.datumRezervacije = this.#generisiVrijeme();
+    this.datumRezervacije = this.generisiVrijeme();
     Rezervacija.brojRezervacije++;
   }
-  generisiVrijemeVol2(){
-    return this.#generisiVrijeme()
-  }
+ 
   static racunZaplatiti(brojLicneKarte) {
     // Dohvatiti rezervaciju na osnovu broja lične karte
     let rezervacija = Prijave.prijavljeniKorisnici.find(
@@ -157,7 +155,7 @@ class Rezervacija {
     return this.ukupnaCijena;
   }
 
-  #generisiVrijeme() {
+  generisiVrijeme() {
     let dan = new Date();
     return (
       dan.getDate() + "." + Number(dan.getMonth() + 1) + "." + dan.getFullYear()
@@ -165,7 +163,7 @@ class Rezervacija {
   }
 
   izracunajVrijemeBoravka() {
-    let trenutno = this.#generisiVrijeme();
+    let trenutno = this.generisiVrijeme();
     trenutno = trenutno.split(".").reverse().join(".");
 
     let ukupnoVrijemeBoravka = 1;
@@ -284,7 +282,7 @@ class Korisnik {
         trenutnaRezervacija.brojSobe = novaSoba.brojSobe;
         trenutnaRezervacija.tipSobe = novaSoba.tipSobe;
         trenutnaRezervacija.datumRezervacije =
-        trenutnaRezervacija.generisiVrijemeVol2();
+        trenutnaRezervacija.generisiVrijeme();
         console.log(
           `Korisnik je uspješno premješten u sobu broj ${novaSoba.brojSobe} (${novaSoba.tipSobe}).`
         );
@@ -306,18 +304,16 @@ class Korisnik {
       console.log("Korisnik nema aktivnu rezervaciju!");
       return;
     }
-
+    
     const ukupnaCijena = rezervacija.getUkupnaCijena();
 
     console.log(
       `Ukupan račun za korisnika ${this.ime} iznosi ${ukupnaCijena} KM.`
     );
+    const korisnikJeplatioRacun = getBrojLicneKarte.platioRacun();
+   
 
-    const platioRacun = prompt(
-      `Da li ste platili račun? (da/ne): `
-    ).toLowerCase();
-
-    if (platioRacun === "da") {
+    if (korisnikJeplatioRacun == true) {
       Hotel.oslobodiSobu(rezervacija);
       Prijave.odjaviKorisnika(rezervacija);
       console.log(`${this.ime} je uspješno odjavljen iz hotela.`);
@@ -326,12 +322,11 @@ class Korisnik {
     }
   }
 
-  platiRacun() {
+  platioRacun() {
     //prije nego sto korisnik bude odjavljen iz hotela, obavezno mora platiti racun za koristene usluge¸
-    let cijenaZaNaplatiti = Rezervacija.racunZaplatiti(this.getBrojLicneKarte);
-    if (cijenaZaNaplatiti) {
-    }
-    console.log(`Racun koji ${this.ime} treba platiti je ${cijenaZaNaplatiti}`);
+    return  true
+   
+
   }
 }
 
@@ -517,6 +512,6 @@ admin.izdajRacunKorisniku(korisnik2);
 console.log(Prijave.prijavljeniKorisnici);
 
 //
-korisnik1.platiRacun();
+korisnik1.platioRacun();
 // korisnik1.rezervisiUslugu();
 korisnik1.zatraziPromjenuSobe();
