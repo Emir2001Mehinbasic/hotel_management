@@ -178,6 +178,7 @@ class Korisnik {
   spol;
   #brojLicneKarte;
   godine;
+  platioRacun;
 
   constructor(ime, prezime, spol, brojLicneKarte, godine) {
     this.ime = ime;
@@ -185,6 +186,7 @@ class Korisnik {
     this.spol = spol;
     this.#brojLicneKarte = brojLicneKarte;
     this.godine = godine;
+    this.platioRacun = false;
   }
 
   set setBrojLicneKarte(brojLicneKarte) {
@@ -214,66 +216,55 @@ class Korisnik {
     console.log(`Ukupno: ${rez.ukupnaCijena} KM`);
   }
 
-  rezervisiUslugu() {
-    //prrikaz dostupnih usluga
+  rezervisiUslugu(izbor) {
+    ispisLinija();
     console.log("Dostupne usluge:");
     Hotel.uslugeHotela.forEach((usluga, index) => {
-      console.log(`${index + 1}. ${usluga.usluga} - ${usluga.cijena} KM`);
+        console.log(`${index + 1}. ${usluga.usluga} - ${usluga.cijena} KM`);
     });
 
-    //unos korisnikovog izbora
-    let izbor = prompt("Unesite broj usluge koju želite rezervisati: ");
     izbor = parseInt(izbor);
 
     if (izbor > 0 && izbor <= Hotel.uslugeHotela.length) {
-      const odabranaUsluga = Hotel.uslugeHotela[izbor - 1];
-      //find-a korisnikove rezervacije
-      const rezervacija = Prijave.prijavljeniKorisnici.find(
-        (rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte
-      );
+        const odabranaUsluga = Hotel.uslugeHotela[izbor - 1];
+        
+        const rezervacija = Prijave.prijavljeniKorisnici.find((rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte);
 
-      if (!rezervacija) {
-        console.log("Korisnik nema aktivnu rezervaciju!");
-        return;
-      }
+        if (!rezervacija) {
+            console.log("Korisnik nema aktivnu rezervaciju!");
+            return;
+        }
 
-      //dodavanje usluge u rezervaciju
-      rezervacija.usluge.push(odabranaUsluga);
-      console.log(
-        `Usluga "${odabranaUsluga.usluga}" uspješno dodana na račun korisnika.`
-      );
+        rezervacija.usluge.push(odabranaUsluga);
+        console.log(
+            `Usluga "${odabranaUsluga.usluga}" uspješno dodana na račun korisnika.`
+        );
     } else {
-      console.log("Pogrešan unos. Pokušajte ponovo.");
+        console.log("Pogrešan unos. Pokušajte ponovo.");
     }
-  }
+}
 
-  zatraziPromjenuSobe() {
+  zatraziPromjenuSobe(nekaNovaSoba) {
     //provjerava rezervaciju
-    const trenutnaRezervacija = Prijave.prijavljeniKorisnici.find(
-      (rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte
-    );
+    ispisLinija();
+    const trenutnaRezervacija = Prijave.prijavljeniKorisnici.find((rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte);
 
     if (!trenutnaRezervacija) {
       console.log("Korisnik nema aktivnu rezervaciju!");
       return;
     }
-
-    //oslobodjaje trenutnu sobu
+     
     if (Hotel.oslobodiSobu(trenutnaRezervacija)) {
       console.log("Trenutna soba je uspješno oslobođena.");
 
-      //zatrazi novu sobu
-      let noviTipSobe = prompt(
-        "Unesite tip sobe u koju želite da se preselite (jednokrevetna, dvokrevetna, apartman): "
-      ).toLowerCase();
-      let novaSoba = Hotel.rezervisiSobu(noviTipSobe);
+      const novaSoba = Hotel.rezervisiSobu(nekaNovaSoba.toLowerCase());
 
       if (novaSoba) {
-        //azuriraj rezervaciju sa novim podacima
         trenutnaRezervacija.brojSobe = novaSoba.brojSobe;
         trenutnaRezervacija.tipSobe = novaSoba.tipSobe;
         trenutnaRezervacija.datumRezervacije =
-        trenutnaRezervacija.generisiVrijemeVol2();
+          trenutnaRezervacija.generisiVrijemeVol2();
+
         console.log(
           `Korisnik je uspješno premješten u sobu broj ${novaSoba.brojSobe} (${novaSoba.tipSobe}).`
         );
@@ -286,41 +277,45 @@ class Korisnik {
   }
 
   odjaviSeIzHotela() {
-    //pwrovjerava da li je korisnik platio račun
-    const rezervacija = Prijave.prijavljeniKorisnici.find(
-      (rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte
-    );
+    //provjerava da li je korisnik platio račun
+    ispisLinija();
+   const rezervacija = Prijave.prijavljeniKorisnici.find((rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte);
 
-    if (!rezervacija) {
-      console.log("Korisnik nema aktivnu rezervaciju!");
-      return;
-    }
+   if (!rezervacija) {
+     console.log("Korisnik nema aktivnu rezervaciju!");
+     return;
+   }
 
-    const ukupnaCijena = rezervacija.getUkupnaCijena();
+   const ukupnaCijena = rezervacija.getUkupnaCijena();
+   console.log(
+     `Ukupan račun za korisnika ${this.ime} iznosi ${ukupnaCijena} KM.`
+   );
 
-    console.log(
-      `Ukupan račun za korisnika ${this.ime} iznosi ${ukupnaCijena} KM.`
-    );
-
-    const platioRacun = prompt(
-      `Da li ste platili račun? (da/ne): `
-    ).toLowerCase();
-
-    if (platioRacun === "da") {
-      Hotel.oslobodiSobu(rezervacija);
-      Prijave.odjaviKorisnika(rezervacija);
-      console.log(`${this.ime} je uspješno odjavljen iz hotela.`);
-    } else {
-      console.log(`${this.ime} mora platiti račun prije odjave iz hotela.`);
-    }
+   //Provjera plaćanja računa
+   if (this.platiRacun()) {
+     Hotel.oslobodiSobu(rezervacija);
+     Prijave.odjaviKorisnika(rezervacija);
+     console.log(`${this.ime} je uspješno odjavljen iz hotela.`);
+   } else {
+     console.log(`${this.ime} mora platiti račun prije odjave iz hotela.`);
+   }
   }
 
   platiRacun() {
     //prije nego sto korisnik bude odjavljen iz hotela, obavezno mora platiti racun za koristene usluge¸
-    let cijenaZaNaplatiti = Rezervacija.racunZaplatiti(this.getBrojLicneKarte);
-    if (cijenaZaNaplatiti) {
-    }
-    console.log(`Racun koji ${this.ime} treba platiti je ${cijenaZaNaplatiti}`);
+    ispisLinija();
+     const rezervacija = Prijave.prijavljeniKorisnici.find((rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte);
+
+     if (!rezervacija) {
+       console.log("Korisnik nema aktivnu rezervaciju!");
+       return false;
+     }
+
+      const ukupnaCijena = rezervacija.getUkupnaCijena();
+      console.log(`Račun iznosi ${ukupnaCijena} KM. `);
+      this.platioRacun = true;
+      console.log("Račun je uspješno plaćen!");
+      return true
   }
 }
 
@@ -486,4 +481,7 @@ admin.prijaviKorisnika(korisnik3, "jednokrevetna");
 // korisnik1.provjeriRacun();
 admin.izdajRacunKorisniku(korisnik2);
 //
+korisnik1.zatraziPromjenuSobe("apartman");
+korisnik1.rezervisiUslugu("kino")
 korisnik1.platiRacun();
+korisnik1.odjaviSeIzHotela();
