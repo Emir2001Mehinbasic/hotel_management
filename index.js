@@ -379,7 +379,7 @@ class Admin{
   }
 
   #generisiUsernameKorisniku(ime, prezime, godine){
-      return ime.toLowerCase() + '_' + prezime.toLowerCase() + godine + (Math.random() * 10).toFixed(0);
+      return ime.toLowerCase() + '_' + prezime.toLowerCase() + godine //+ (Math.random() * 10).toFixed(0);
   }
 
   #generisiPasswordKorisniku(ime, prezime, godine){
@@ -388,7 +388,7 @@ class Admin{
 
   promijeniInformacijeKorisniku(korisnik, tipSobe){
       if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
-      let rezervacija = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+      let rezervacija = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === korisnik.getBrojLicneKarte || e.username === korisnik.username);
      if(!(tipSobe.toLowerCase() == 'jednokrevetna' || tipSobe.toLowerCase() === 'dvokrevetna' || tipSobe.toLowerCase() == 'apartman')) {
       return false;
      }
@@ -429,7 +429,8 @@ class Admin{
 
   odjaviKorisnika(korisnik){
       if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
-      let user = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+      let user = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === korisnik.getBrojLicneKarte || e.brojLicneKarteKorisnika.username === korisnik.getBrojLicneKarte.username); //kod bi radio u slucaju da brojLicneKarte nije objekat
+
       if(user) {
           Prijave.odjaviKorisnika(user);
       }
@@ -438,28 +439,37 @@ class Admin{
 
   ugasiSistem(){
       if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
-      this.odjaviSveKorisnike()
+      Prijave.prijavljeniKorisnici.forEach(e => this.odjaviKorisnika(e));
+      
   }
 
   pretraziPrijavljeneKorisnike(brojLicneKarte, username){
       if(!this.isLoggedIn){console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);return;};
-      let korisnik = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
-      console.log(korisnik); //ev zavrsio sam
-      
+      let korisnik = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === brojLicneKarte || e.brojLicneKarteKorisnika.username === username)
+      if(korisnik) {
+      console.log(korisnik); 
+      } else {
+        console.log('Korisnik nije u hotelu')
+      }
   }
 
   odobriOdjavuKorisnika(brojLicneKarte, username){
+ 
       if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return;}
+      let korisnik = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === brojLicneKarte || e.brojLicneKarteKorisnika.username === username);
 
-      if(platioRacun) {
-      let korisnik = Prijave.prijavljeniKorisnici.find(e => e.brojLicneKarteKorisnika === brojLicneKarte || e.username === username);
+
+      if(korisnik.platiRacun()) {
       Prijave.prijavljeniKorisnici.filter(e => e != korisnik);
+      } else {
+        console.log('Korisnik nije platio racun')
       }
 
       //nakon sto korisnik posalje zahtjev za odjavu, admin treba da izda racun i nakon sto korisnik plati racun onda da odobri odjavu korisnika iz hotela
   }
 
 };
+
 
 
 //kreiranje objekta admin, i pozivanje metode za prijavu
@@ -484,6 +494,10 @@ admin.prijaviKorisnika(korisnik3, "jednokrevetna");
 // korisnik1.provjeriRacun();
 admin.izdajRacunKorisniku(korisnik2);
 
+console.log('pretraga')
+console.log(admin.pretraziPrijavljeneKorisnike("1525235A" , 'munib_osmic22'))
+
+console.log('prijave')
 console.log(Prijave.prijavljeniKorisnici);
 
 //
