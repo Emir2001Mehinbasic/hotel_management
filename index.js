@@ -66,6 +66,14 @@ class Hotel {
   }
 }
 
+class Sistem{
+    static logedUsers = [];
+
+    static dodajLogIn(korisnik){
+        this.logedUsers.push(korisnik);
+    }
+}
+
 //klasa sadrzi samo korisnike koji su prijavljeni u hotelu
 class Prijave {
   static prijavljeniKorisnici = [];
@@ -90,6 +98,8 @@ class Prijave {
 }
 
 //kada se korisnik prijavi u hotel, dobije sobu, pravi se instanca ove klase za lakse upravljanje i racunanje cijena usluga
+
+
 class Rezervacija {
   static brojRezervacije = 1;
   brojRezervacije;
@@ -107,17 +117,16 @@ class Rezervacija {
     this.brojSobe = soba.brojSobe;
     this.#cijenaSobe = soba.cijena;
     this.brojRezervacije = Rezervacija.brojRezervacije;
-    this.datumRezervacije = this.#generisiVrijeme();
+    this.datumRezervacije = this.generisiVrijeme();
     Rezervacija.brojRezervacije++;
   }
-  generisiVrijemeVol2(){
-    return this.#generisiVrijeme()
-  }
+ 
   static racunZaplatiti(brojLicneKarte) {
     // Dohvatiti rezervaciju na osnovu broja lične karte
     let rezervacija = Prijave.prijavljeniKorisnici.find(
       (e) => e.brojLicneKarteKorisnika === brojLicneKarte
     );
+
 
     // Ako rezervacija ne postoji, vratiti false
     if (!rezervacija) return false;
@@ -146,7 +155,7 @@ class Rezervacija {
     return this.ukupnaCijena;
   }
 
-  #generisiVrijeme() {
+  generisiVrijeme() {
     let dan = new Date();
     return (
       dan.getDate() + "." + Number(dan.getMonth() + 1) + "." + dan.getFullYear()
@@ -154,7 +163,7 @@ class Rezervacija {
   }
 
   izracunajVrijemeBoravka() {
-    let trenutno = this.#generisiVrijeme();
+    let trenutno = this.generisiVrijeme();
     trenutno = trenutno.split(".").reverse().join(".");
 
     let ukupnoVrijemeBoravka = 1;
@@ -170,7 +179,7 @@ class Rezervacija {
 
     return ukupnoVrijemeBoravka;
   }
-}
+ }
 
 class Korisnik {
   ime;
@@ -442,10 +451,28 @@ class Admin {
     //gasi cijeli sistem a prethodno poziva metode za odjavljivanje svih korisnika, ispisuje poruku dovidjenja i gasi sistem
   }
 
+
+
+    //POTREBNO DODATI DA NE MOZE ISTI KORISNIK IMATI VISE SOBA, ako korisnik zatrazi sobu koja trenutno nije slobodna ne smije ga upisati
+    prijaviKorisnika(korisnik, tipSobe){
+        ispisLinija();
+        if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
+        //prima objekat korisnik i string tip sobe koju korisnik zeli da rezervise za sebe, koristi funkcije generisiUsername i generisiPassword
+        //dodaje korisnika u niz prijavljeniKorisnici iz klase hotel
+        if(typeof korisnik != "object") return;
+        let soba = Hotel.rezervisiSobu(tipSobe);
+        if(!soba) { console.log('Nema slobodnih soba sa tim specifikacijama'); return; }
+
+        korisnik.username = this.#generisiUsernameKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
+        korisnik.password = this.#generisiPasswordKorisniku(korisnik.ime, korisnik.prezime, korisnik.godine);
+        Prijave.upisiKorisnika(new Rezervacija(soba, korisnik));
+        console.log(`Kreirana je nova rezervacija na ime ${korisnik.ime} ${korisnik.prezime}.\nBroj sobe: ${soba.brojSobe}\nTip sobe: ${soba.tipSobe.charAt(0).toUpperCase()}${soba.tipSobe.slice(1)}`);}
+
   pretraziPrijavljeneKorisnike(ime, brojLicneKarte, username) {
     if (!this.isLoggedIn) {
       console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`);
       return;
+
     }
   }
 
@@ -465,7 +492,6 @@ const admin = new Admin();
 admin.prijavaAdmina("admin", "admin");
 
 /* **************************************************************** */
-admin.prijaviKorisnika();
 
 const korisnik1 = new Korisnik("Ane", "Kane", "M", "145262AK", 21);
 const korisnik2 = new Korisnik("Munib", "Osmic", "M", "1525235A", 22);
@@ -480,6 +506,9 @@ admin.prijaviKorisnika(korisnik3, "jednokrevetna");
 
 // korisnik1.provjeriRacun();
 admin.izdajRacunKorisniku(korisnik2);
+
+console.log(Prijave.prijavljeniKorisnici);
+
 //
 korisnik1.zatraziPromjenuSobe("apartman");
 korisnik1.rezervisiUslugu("kino")
