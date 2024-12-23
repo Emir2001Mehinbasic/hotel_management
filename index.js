@@ -388,7 +388,7 @@ class Admin{
 
   promijeniInformacijeKorisniku(korisnik, tipSobe){
       if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
-      let rezervacija = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === korisnik.getBrojLicneKarte || e.username === korisnik.username);
+      let rezervacija = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === korisnik.getBrojLicneKarte || e.brojLicneKarteKorisnika.username === korisnik.brojLicneKarteKorisnika.username);
      if(!(tipSobe.toLowerCase() == 'jednokrevetna' || tipSobe.toLowerCase() === 'dvokrevetna' || tipSobe.toLowerCase() == 'apartman')) {
       return false;
      }
@@ -429,7 +429,7 @@ class Admin{
 
   odjaviKorisnika(korisnik){
       if(!this.isLoggedIn){ console.log(`Nije moguce izvrsiti radnju prije nego se admin prijavi!`); return; }
-      let user = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === korisnik.getBrojLicneKarte || e.brojLicneKarteKorisnika.username === korisnik.getBrojLicneKarte.username); //kod bi radio u slucaju da brojLicneKarte nije objekat
+      let user = Prijave.prijavljeniKorisnici.find(e => e.getBrojLicneKarte === korisnik.getBrojLicneKarte || e.brojLicneKarteKorisnika.username === korisnik.brojLicneKarteKorisnika.username); //kod bi radio u slucaju da brojLicneKarte nije objekat
 
       if(user) {
           Prijave.odjaviKorisnika(user);
