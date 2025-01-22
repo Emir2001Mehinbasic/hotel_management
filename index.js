@@ -20,7 +20,7 @@ class Hotel {
     { usluga: "Kino", cijena: 10 },
     { usluga: "Teretena", cijena: 10 },
     { usluga: "Sauna", cijena: 20 },
-    { usluga: "Restoran", cijnea: 10 },
+    { usluga: "Restoran", cijena: 10 },
     { usluga: "Bazen", cijena: 30 },
   ];
 
