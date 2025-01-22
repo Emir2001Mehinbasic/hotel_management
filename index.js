@@ -120,9 +120,7 @@ class Rezervacija {
     this.datumRezervacije = this.generisiVrijeme();
     Rezervacija.brojRezervacije++;
   }
-  generisiVrijemeVol2(){
-    return this.#generisiVrijeme()
-  }
+  
   static racunZaplatiti(brojLicneKarte) {
     // Dohvatiti rezervaciju na osnovu broja lične karte
     let rezervacija = Prijave.prijavljeniKorisnici.find(
