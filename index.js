@@ -111,8 +111,8 @@ class Rezervacija {
   usluge = [];
   ukupnaCijena = 0;
 
-  constructor(soba, brojLicneKarte) {
-    this.brojLicneKarteKorisnika = brojLicneKarte;
+  constructor(soba, korisnik) {
+    this.brojLicneKarteKorisnika = korisnik.getBrojLicneKarte;
     this.tipSobe = soba.tipSobe;
     this.brojSobe = soba.brojSobe;
     this.#cijenaSobe = soba.cijena;
@@ -233,12 +233,12 @@ class Korisnik {
     });
 
     izbor = parseInt(izbor);
-
+    
     if (izbor > 0 && izbor <= Hotel.uslugeHotela.length) {
         const odabranaUsluga = Hotel.uslugeHotela[izbor - 1];
         
         const rezervacija = Prijave.prijavljeniKorisnici.find((rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte);
-
+        
         if (!rezervacija) {
             console.log("Korisnik nema aktivnu rezervaciju!");
             return;
@@ -253,6 +253,7 @@ class Korisnik {
     }
 }
 
+
   zatraziPromjenuSobe(nekaNovaSoba) {
     //provjerava rezervaciju
     ispisLinija();
@@ -263,8 +264,8 @@ class Korisnik {
       return;
     }
 
-    //oslobodjaje trenutnu sobu
-    if (Hotel.oslobodiSobu(trenutnaRezervacija)) {
+    //oslobadja trenutnu sobu
+    if (Hotel.oslobodiSobu(trenutnaRezervacija.brojSobe)) {
       console.log("Trenutna soba je uspješno oslobođena.");
 
       const novaSoba = Hotel.rezervisiSobu(nekaNovaSoba.toLowerCase());
@@ -272,8 +273,7 @@ class Korisnik {
       if (novaSoba) {
         trenutnaRezervacija.brojSobe = novaSoba.brojSobe;
         trenutnaRezervacija.tipSobe = novaSoba.tipSobe;
-        trenutnaRezervacija.datumRezervacije =
-        trenutnaRezervacija.generisiVrijemeVol2();
+        trenutnaRezervacija.datumRezervacije = trenutnaRezervacija.generisiVrijeme();
         console.log(
           `Korisnik je uspješno premješten u sobu broj ${novaSoba.brojSobe} (${novaSoba.tipSobe}).`
         );
@@ -314,7 +314,7 @@ class Korisnik {
     //prije nego sto korisnik bude odjavljen iz hotela, obavezno mora platiti racun za koristene usluge¸
     ispisLinija();
      const rezervacija = Prijave.prijavljeniKorisnici.find((rez) => rez.brojLicneKarteKorisnika === this.getBrojLicneKarte);
-
+    
      if (!rezervacija) {
        console.log("Korisnik nema aktivnu rezervaciju!");
        return false;
@@ -480,7 +480,7 @@ const korisnik3 = new Korisnik("Ajla", "Hadzic", "F", "15fs21435", 27);
 admin.prijaviKorisnika(korisnik1, "jednokrevetna");
 admin.prijaviKorisnika(korisnik2, "apartman");
 
-admin.prijaviKorisnika(korisnik3, "jednokrevetna");
+//admin.prijaviKorisnika(korisnik3, "jednokrevetna");
 
 // console.log(Prijave.prijavljeniKorisnici);
 
@@ -493,8 +493,8 @@ console.log(admin.pretraziPrijavljeneKorisnike("1525235A" , 'munib_osmic22'))
 console.log('prijave')
 console.log(Prijave.prijavljeniKorisnici);
 
-//
+
 korisnik1.zatraziPromjenuSobe("apartman");
-korisnik1.rezervisiUslugu("kino")
+korisnik1.rezervisiUslugu(2)
 korisnik1.platiRacun();
 
